@@ -5,13 +5,13 @@ handle:
 
 import logo from './logo_svom_black.svg'
 
-# Space Variable Objects Monitor (SVOM)
+# Space-based multi-band astronomical Variable Objects Monitor (SVOM)
 
 <img
   src={logo}
   align="right"
-  width="250"
-  height="165"
+  width="818"
+  height="780"
   alt="SVOM logo"
   className="grid-col-6 mobile-lg:grid-col-4 tablet:grid-col-2 desktop:grid-col-3 height-auto"
 />
@@ -22,46 +22,80 @@ import logo from './logo_svom_black.svg'
 
 **End of Operations:** Mission duration of 3 years
 
-**Data Archive:**
-[HEASARC SVOM Archive](https://heasarc.gsfc.nasa.gov/docs/heasarc/missions/svom.html)
-
 The [Space-based multi-band astronomical Variable Objects Monitor (SVOM)](https://www.svom.eu/en/the-svom-mission/) is a French-Chinese mission, result of a collaboration between the two national space agencies, [China National Space Administration (CNSA)](https://www.cnsa.gov.cn/english/index.html) and [Centre national d'études spatiales (CNES)](https://cnes.fr/en/projects/svom). SVOM mission is dedicated to the study of the the most powerful transient phenomena, with a particular emphasis on gamma-ray bursts (GRBs).
 
 The SVOM spacecraft carries four multi-wavelength instruments: ECLAIRs, Gamma Ray burst Monitor (GRM), Microchannel X-ray Telescope (MXT) and Visual Telescope (VT). ECLAIRs and GRM can detect gamma-ray transient sources in real-time with localisation capabilities for ECLAIRs. SVOM can transfer the alerts in near real-time with a typical latency of less than 30s and perform autonomous slew to allow x-ray and optical follow-up of the source with the smaller field of view instruments: MXT and VT.
 
  <div className="overflow-table">
 
-| Instruments | Energy Range                                           | Field of View | Localization                                  |
-| ----------- | ------------------------------------------------------ | ------------- | --------------------------------------------- |
-| ECLAIRs     | 4 - 250 keV                                            | 2 ster        | ~8ʹ radius (statistical, 90% confidence)      |
-| GRM         | 15 - 5000 keV                                          | 2.6 ster      | ~1-10° radius (statistical, 90% confidence)   |
-| MXT         | 0.2 - 10 keV                                           | 1.1° x 1.1°   | ~10-100ʺ radius (statistical, 90% confidence) |
-| VT          | 450 - 650 nm (Blue band) <br/>650 - 1000 nm (Red band) | 26ʹ x 26'     | ~1ʺ radius (statistical, 90% confidence)      |
+| <small> Instruments</small> | <small> Energy Range </small>                                          | <small> Field of View</small> | <small> Localization </small>                                 |
+| --------------------------- | ---------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------------------- |
+| <small> ECLAIRs </small>    | <small> 4 - 250 keV </small>                                           | <small> 2 ster </small>       | <small> ~8ʹ radius (statistical, 90% confidence) </small>     |
+| <small> GRM </small>        | <small> 15 - 5000 keV </small>                                         | <small> 2.6 ster </small>     | <small> ~1-10° radius (statistical, 90% confidence) </small>  |
+| <small> MXT </small>        | <small> 0.2 - 10 keV </small>                                          | <small> 1.1° x 1.1° </small>  | <small> ~10-100ʺ radius (statistical, 90% confidence)</small> |
+| <small> VT </small>         | <small> 450 - 650 nm (Blue band) <br/>650 - 1000 nm (Red band)</small> | <small> 26ʹ x 26' </small>    | <small> ~1ʺ radius (statistical, 90% confidence) </small>     |
 
  </div>
 
-#### JSON-Serialized GCN Notice Types in GCN Kafka
+#### GCN Notice Types in GCN Kafka
 
-SVOM distributes alerts and localizations of gamma-ray burst and other transients. For now, these notices are published only in VOEvent format through the GCN Kafka topics prfixed `gcn.notices.svom.voevent`. Support in the JSON format will be available as soon as possible.
-As SVOM is at the beginning of its operationnal phase, only the first alerts from GRM, ECLAIRs and MXT are available, see table below:
+SVOM distributes alerts and localizations of gamma-ray burst and other transients. For now, these notices are published only in VOEvent format through the GCN Kafka topics prefixed `gcn.notices.svom.voevent`.
+
+Each of the 4 instruments have their dedicated topics to stream notices with their related information, see table below:
 
  <div className="overflow-table">
 
-| kafka topic                                       | Contents                                                                                        | Latency         |
-| ------------------------------------------------- | ----------------------------------------------------------------------------------------------- | --------------- |
-| `gcn.notices.svom.voevent.grm`                    | GRM trigger with possible raw localization                                                      | ~10 sec         |
-| `gcn.notices.svom.voevent.eclairs.trigger.wakeup` | ECLAIRs localization of a potential burst, can be updated once with slew status of the platform | ~10 sec - 1 min |
-| `gcn.notices.svom.voevent.mxt`                    | MXT localization of a found counterpart (only if platform slew), can be updated up to 3 times   | ~5 min          |
+| <small> Kafka topic </small>                        | <small> Notice types </small>                                                            | <small> Latency </small>                          |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| <small> `gcn.notices.svom.voevent.grm` </small>     | <small> `grm-trigger` </small>                                                           | <small> ~15 sec </small>                          |
+| <small> `gcn.notices.svom.voevent.eclairs` </small> | <small> `eclairs-wakeup` <br/>`eclairs-catalog`<br/ > `slewing` / `not-slewing` </small> | <small> ~15 sec <br/>~15 sec <br/> ~1 min</small> |
+| <small> `gcn.notices.svom.voevent.mxt` </small>     | <small> `mxt-initial` <br/>`mxt-update` </small>                                         | <small> ~3 min </small>                           |
+| <small> `gcn.notices.svom.voevent.vt` </small>      | <small> <b>Available soon</b> </small>                                                   | <small> - </small>                                |
 
  </div>
+
+##### GRM notices
+
+- the <small>`grm-trigger`</small> notice reports a detection of at least 2 out of the 3
+  Gamma-Ray Detectors (GRDs) composing the GRM instrument. The localisation of the event with the GRM
+  cannot be quickly retrieved, therefore <small>`grm-trigger`</small> notices can be issued without localisation information.
+  Confirmation by another detection (e.g. ECLAIRs or another mission) may be necessary to localise
+  the detection and organise a follow-up.
+
+##### ECLAIRs notices
+
+- the <small>`eclairs-wakeup`</small> notice reports a GRB candidate detection by ECLAIRs.
+  The localisation typical uncertainty is about 8 arcmin.
+- the <small>`eclairs-catalog`</small> notice reports a catalogued source detection by ECLAIRs.
+- the <small>`slewing` / `not-slewing`</small> notice provides information on the platform slew status and might
+  provide a better localisation with a typical uncertainty narrowed to about 6 arcmin:
+  - a <small>`slewing`</small> notice contains the localization of the slew
+    for an on-board follow-up by the MXT and VT instruments.
+  - a <small>`not-slewing`</small> notice indicates that no slew will be performed by the platform.
+    It describes whether the detection did not reach the slew threshold or the slew was not possible.
+
+##### MXT notices
+
+MXT notices are produced if MXT detects a source following a platform slew.
+They are labelled according to the quality factor <small>`qf`</small> which indicates the accuracy
+of the localisation: <small>`qf=4`</small> if R90 is smaller than 30 arcsec, <small>`qf=3`</small> if smaller than 60 arcsec,
+
+<small>``qf=2``</small> if smaller than 120 arcsec, <small>``qf=1``</small> if
+smaller than 300 arcsec.
+
+They will be named as follow:
+_ <small>`mxt-initial_qf#`</small> for the first detection
+(<small>`#`</small> being the value of the quality factor),
+_ <small>`mxt-update_qf#`</small> each time the quality factor
+of the detection increases (for a maximum number of 4 MXT notices).
 
 #### Yearly Trigger Rates
 
  <div className="overflow-table">
 
-| Instrument | Type                       | Yearly Rates |
-| ---------- | -------------------------- | ------------ |
-| ECLAIRs    | GRBs, and other transients | 50 GRBs/yr   |
-| GRM        | GRBs, and other transients | 90 GRBs/yr   |
+| <small> Instrument</small> | <small> Type </small>                      | <small> Yearly Rates</small> |
+| -------------------------- | ------------------------------------------ | ---------------------------- |
+| <small> ECLAIRs </small>   | <small> GRBs, and other transients</small> | <small> 50 GRBs/yr </small>  |
+| <small> GRM </small>       | <small> GRBs, and other transients</small> | <small> 90 GRBs/yr </small>  |
 
  </div>
