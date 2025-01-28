@@ -28,12 +28,12 @@ The SVOM spacecraft carries four multi-wavelength instruments: ECLAIRs, Gamma Ra
 
  <div className="overflow-table">
 
-| Instruments              | Energy Range                                                           | Field of View                | Localization                                                |
-| ------------------------ | ---------------------------------------------------------------------- | ---------------------------- | ----------------------------------------------------------- |
-| <small> ECLAIRs </small> | <small> 4 - 250 keV </small>                                           | <small> 2 ster </small>      | <small> ~10ʹ radius (statistical + systematic) </small>     |
-| <small> GRM </small>     | <small> 15 - 5000 keV </small>                                         | <small> 2.6 ster </small>    | <small> several degrees </small>                            |
-| <small> MXT </small>     | <small> 0.2 - 10 keV </small>                                          | <small> 1.1° x 1.1° </small> | <small> ~10-100ʺ radius (statistical + systematic) </small> |
-| <small> VT </small>      | <small> 450 - 650 nm (Blue band) <br/>650 - 1000 nm (Red band)</small> | <small> 26ʹ x 26' </small>   | <small> ~1ʺ radius </small>                                 |
+| <small> Instruments </small> | <small> Energy Range </small>                                          | <small> Field of View </small> | <small> Localization </small>                               |
+| ---------------------------- | ---------------------------------------------------------------------- | ------------------------------ | ----------------------------------------------------------- |
+| <small> ECLAIRs </small>     | <small> 4 - 250 keV </small>                                           | <small> 2 ster </small>        | <small> ~10ʹ radius (statistical + systematic) </small>     |
+| <small> GRM </small>         | <small> 15 - 5000 keV </small>                                         | <small> 2.6 ster </small>      | <small> several degrees </small>                            |
+| <small> MXT </small>         | <small> 0.2 - 10 keV </small>                                          | <small> 1.1° x 1.1° </small>   | <small> ~10-100ʺ radius (statistical + systematic) </small> |
+| <small> VT </small>          | <small> 450 - 650 nm (Blue band) <br/>650 - 1000 nm (Red band)</small> | <small> 26ʹ x 26' </small>     | <small> ~1ʺ radius </small>                                 |
 
  </div>
 
@@ -45,7 +45,7 @@ Each of the 4 instruments have their dedicated topics to stream notices with the
 
  <div className="overflow-table">
 
-| Kafka topic                                         | Notice types                                                                             |
+| <small> Kafka topic </small>                        | <small> Notice types </small>                                                            |
 | --------------------------------------------------- | ---------------------------------------------------------------------------------------- |
 | <small> `gcn.notices.svom.voevent.grm` </small>     | <small> `grm-trigger` </small>                                                           |
 | <small> `gcn.notices.svom.voevent.eclairs` </small> | <small> `eclairs-wakeup` <br/>`eclairs-catalog`<br/ > `slewing` / `not-slewing` </small> |
@@ -58,7 +58,7 @@ Each of the 4 instruments have their dedicated topics to stream notices with the
 
  <div className="overflow-table">
 
-| Notice Type                                                | Content                                                                             | Latency                   |
+| <small> Notice Type </small>                               | <small> Content </small>                                                            | <small> Latency </small>  |
 | ---------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------- |
 | <small> `grm-trigger` </small>                             | <small> GRM trigger notice with possible rough localization </small>                | <small> ~15 sec</small>   |
 | <small> `eclairs-wakeup` </small>                          | <small> ECLAIRs localisation of a GRB candidate </small>                            | <small> ~15 sec</small>   |
@@ -69,8 +69,9 @@ Each of the 4 instruments have their dedicated topics to stream notices with the
 
  </div>
 
-<sup>1</sup> indicates whether the detection did not reach the slew threshold
-(in a maximum time window of 8 min) or the slew was not possible.
+<sup>1</sup> <small>`not-slewing`</small> are published either if the detection
+did not reach the slew threshold (in a maximum time window of 8 min) or if the
+slew was not possible. The reason is specified in the notices parameters.
 
 <sup>2</sup> the value of the quality factor <small>`qf`</small> indicates the accuracy
 of the localisation:
@@ -78,42 +79,7 @@ of the localisation:
  - <small>`qf2`</small> &#8594; 60'' < R90 < 120''<br/>
  - <small>`qf3`</small> &#8594; 30'' < R90 < 60''<br/>
  - <small>`qf4`</small> &#8594; R90 < 30''<br/>
-
-##### GRM notices
-
-- the <small>`grm-trigger`</small> notice reports a detection of at least 2 out of the 3
-  Gamma-Ray Detectors (GRDs) composing the GRM instrument. The localisation of the event with the GRM
-  cannot be quickly retrieved, therefore <small>`grm-trigger`</small> notices can be issued without localisation information.
-  Confirmation by another detection (e.g. ECLAIRs or another mission) may be necessary to localise
-  the detection and organise a follow-up.
-
-##### ECLAIRs notices
-
-- the <small>`eclairs-wakeup`</small> notice reports a GRB candidate detection by ECLAIRs.
-  The localisation typical uncertainty is about 8 arcmin.
-- the <small>`eclairs-catalog`</small> notice reports a catalogued source detection by ECLAIRs.
-- the <small>`slewing` / `not-slewing`</small> notice provides information on the platform slew status and might
-  provide a better localisation with a typical uncertainty narrowed to about 6 arcmin:
-  - a <small>`slewing`</small> notice contains the localization of the slew
-    for an on-board follow-up by the MXT and VT instruments.
-  - a <small>`not-slewing`</small> notice indicates that no slew will be performed by the platform.
-    It describes whether the detection did not reach the slew threshold or the slew was not possible.
-
-##### MXT notices
-
-MXT notices are produced if MXT detects a source following a platform slew.
-They are labelled according to the quality factor <small>`qf`</small> which indicates the accuracy
-of the localisation: <small>`qf4`</small> if R90 is smaller than 30 arcsec, <small>`qf3`</small> if smaller than 60 arcsec,
-
-<small>``qf2``</small> if smaller than 120 arcsec, <small>``qf1``</small> if
-smaller than 300 arcsec.
-
-They will be named as follow:
-
-- <small>`mxt-initial_qf#`</small> for the first detection (<small>`#`</small> being
-  the value of the quality factor),
-- <small>`mxt-update_qf#`</small> each time the quality factor of the detection
-  increases (for a maximum number of 4 MXT notices).
+<br/>
 
 #### Yearly Trigger Rates
 
