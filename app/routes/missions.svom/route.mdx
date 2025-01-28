@@ -28,16 +28,16 @@ The SVOM spacecraft carries four multi-wavelength instruments: ECLAIRs, Gamma Ra
 
  <div className="overflow-table">
 
-| <small> Instruments</small> | <small> Energy Range </small>                                          | <small> Field of View</small> | <small> Localization </small>                                 |
-| --------------------------- | ---------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------------------- |
-| <small> ECLAIRs </small>    | <small> 4 - 250 keV </small>                                           | <small> 2 ster </small>       | <small> ~8ʹ radius (statistical, 90% confidence) </small>     |
-| <small> GRM </small>        | <small> 15 - 5000 keV </small>                                         | <small> 2.6 ster </small>     | <small> ~1-10° radius (statistical, 90% confidence) </small>  |
-| <small> MXT </small>        | <small> 0.2 - 10 keV </small>                                          | <small> 1.1° x 1.1° </small>  | <small> ~10-100ʺ radius (statistical, 90% confidence)</small> |
-| <small> VT </small>         | <small> 450 - 650 nm (Blue band) <br/>650 - 1000 nm (Red band)</small> | <small> 26ʹ x 26' </small>    | <small> ~1ʺ radius (statistical, 90% confidence) </small>     |
+| Instruments              | Energy Range                                                           | Field of View                | Localization                                                |
+| ------------------------ | ---------------------------------------------------------------------- | ---------------------------- | ----------------------------------------------------------- |
+| <small> ECLAIRs </small> | <small> 4 - 250 keV </small>                                           | <small> 2 ster </small>      | <small> ~10ʹ radius (statistical + systematic) </small>     |
+| <small> GRM </small>     | <small> 15 - 5000 keV </small>                                         | <small> 2.6 ster </small>    | <small> several degrees </small>                            |
+| <small> MXT </small>     | <small> 0.2 - 10 keV </small>                                          | <small> 1.1° x 1.1° </small> | <small> ~10-100ʺ radius (statistical + systematic) </small> |
+| <small> VT </small>      | <small> 450 - 650 nm (Blue band) <br/>650 - 1000 nm (Red band)</small> | <small> 26ʹ x 26' </small>   | <small> ~1ʺ radius </small>                                 |
 
  </div>
 
-#### GCN Notice Types in GCN Kafka
+#### GCN Kafka topics
 
 SVOM distributes alerts and localizations of gamma-ray burst and other transients. For now, these notices are published only in VOEvent format through the GCN Kafka topics prefixed `gcn.notices.svom.voevent`.
 
@@ -45,14 +45,39 @@ Each of the 4 instruments have their dedicated topics to stream notices with the
 
  <div className="overflow-table">
 
-| <small> Kafka topic </small>                        | <small> Notice types </small>                                                            | <small> Latency </small>                          |
-| --------------------------------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| <small> `gcn.notices.svom.voevent.grm` </small>     | <small> `grm-trigger` </small>                                                           | <small> ~15 sec </small>                          |
-| <small> `gcn.notices.svom.voevent.eclairs` </small> | <small> `eclairs-wakeup` <br/>`eclairs-catalog`<br/ > `slewing` / `not-slewing` </small> | <small> ~15 sec <br/>~15 sec <br/> ~1 min</small> |
-| <small> `gcn.notices.svom.voevent.mxt` </small>     | <small> `mxt-initial` <br/>`mxt-update` </small>                                         | <small> ~3 min </small>                           |
-| <small> `gcn.notices.svom.voevent.vt` </small>      | <small> <b>Available soon</b> </small>                                                   | <small> - </small>                                |
+| Kafka topic                                         | Notice types                                                                             |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| <small> `gcn.notices.svom.voevent.grm` </small>     | <small> `grm-trigger` </small>                                                           |
+| <small> `gcn.notices.svom.voevent.eclairs` </small> | <small> `eclairs-wakeup` <br/>`eclairs-catalog`<br/ > `slewing` / `not-slewing` </small> |
+| <small> `gcn.notices.svom.voevent.mxt` </small>     | <small> `mxt-initial` <br/>`mxt-update` </small>                                         |
+| <small> `gcn.notices.svom.voevent.vt` </small>      | <small> <b>Available soon</b> </small>                                                   |
 
  </div>
+
+#### Notice types
+
+ <div className="overflow-table">
+
+| Notice Type                                                | Content                                                                             | Latency                   |
+| ---------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------- |
+| <small> `grm-trigger` </small>                             | <small> GRM trigger notice with possible rough localization </small>                | <small> ~15 sec</small>   |
+| <small> `eclairs-wakeup` </small>                          | <small> ECLAIRs localisation of a GRB candidate </small>                            | <small> ~15 sec</small>   |
+| <small> `eclairs-catalog` </small>                         | <small> ECLAIRs localisation of a flaring source of the on-board catalogue </small> | <small> ~15 sec</small>   |
+| <small> `slewing` /<br/>`not-slewing` <sup>1</sup></small> | <small> Slew status of the platform with ECLAIRs updated localization </small>      | <small> ~1-8 min </small> |
+| <pre><small>`mxt-initial_qf#`<sup>2</sup></small></pre>    | <small> MXT localisation of a found counterpart (only if platform slew) </small>    | <small> ~3 min </small>   |
+| <pre><small>`mxt-update_qf#`<sup>2</sup></small></pre>     | <small> MXT updated localisation (qf > mxt-initial_qf) </small>                     | <small> ~3 min </small>   |
+
+ </div>
+
+<sup>1</sup> indicates whether the detection did not reach the slew threshold
+(in a maximum time window of 8 min) or the slew was not possible.
+
+<sup>2</sup> the value of the quality factor <small>`qf`</small> indicates the accuracy
+of the localisation:
+ - <small>`qf1`</small> &#8594; 120'' < R90 < 300''<br/>
+ - <small>`qf2`</small> &#8594; 60'' < R90 < 120''<br/>
+ - <small>`qf3`</small> &#8594; 30'' < R90 < 60''<br/>
+ - <small>`qf4`</small> &#8594; R90 < 30''<br/>
 
 ##### GRM notices
 
@@ -78,16 +103,17 @@ Each of the 4 instruments have their dedicated topics to stream notices with the
 
 MXT notices are produced if MXT detects a source following a platform slew.
 They are labelled according to the quality factor <small>`qf`</small> which indicates the accuracy
-of the localisation: <small>`qf=4`</small> if R90 is smaller than 30 arcsec, <small>`qf=3`</small> if smaller than 60 arcsec,
+of the localisation: <small>`qf4`</small> if R90 is smaller than 30 arcsec, <small>`qf3`</small> if smaller than 60 arcsec,
 
-<small>``qf=2``</small> if smaller than 120 arcsec, <small>``qf=1``</small> if
+<small>``qf2``</small> if smaller than 120 arcsec, <small>``qf1``</small> if
 smaller than 300 arcsec.
 
 They will be named as follow:
-_ <small>`mxt-initial_qf#`</small> for the first detection
-(<small>`#`</small> being the value of the quality factor),
-_ <small>`mxt-update_qf#`</small> each time the quality factor
-of the detection increases (for a maximum number of 4 MXT notices).
+
+- <small>`mxt-initial_qf#`</small> for the first detection (<small>`#`</small> being
+  the value of the quality factor),
+- <small>`mxt-update_qf#`</small> each time the quality factor of the detection
+  increases (for a maximum number of 4 MXT notices).
 
 #### Yearly Trigger Rates
 
