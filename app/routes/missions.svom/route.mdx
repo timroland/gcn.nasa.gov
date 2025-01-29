@@ -31,7 +31,7 @@ The SVOM spacecraft carries four multi-wavelength instruments: ECLAIRs, Gamma Ra
 | <small> Instruments </small> | <small> Energy Range </small>                                          | <small> Field of View </small> | <small> Localization </small>                               |
 | ---------------------------- | ---------------------------------------------------------------------- | ------------------------------ | ----------------------------------------------------------- |
 | <small> ECLAIRs </small>     | <small> 4 - 250 keV </small>                                           | <small> 2 ster </small>        | <small> ~10ʹ radius (statistical + systematic) </small>     |
-| <small> GRM </small>         | <small> 15 - 5000 keV </small>                                         | <small> 2.6 ster </small>      | <small> several degrees </small>                            |
+| <small> GRM </small>         | <small> 15 - 5000 keV </small>                                         | <small> 2.6 ster </small>      | <small> ~10 degrees </small>                                |
 | <small> MXT </small>         | <small> 0.2 - 10 keV </small>                                          | <small> 1.1° x 1.1° </small>   | <small> ~10-100ʺ radius (statistical + systematic) </small> |
 | <small> VT </small>          | <small> 450 - 650 nm (Blue band) <br/>650 - 1000 nm (Red band)</small> | <small> 26ʹ x 26' </small>     | <small> ~1ʺ radius </small>                                 |
 
@@ -54,24 +54,24 @@ Each of the 4 instruments have their dedicated topics to stream notices with the
 
  </div>
 
-#### Notice types
+#### VOEvent XML-serialized GCN notice types
 
  <div className="overflow-table">
 
-| <small> Notice Type </small>                               | <small> Content </small>                                                            | <small> Latency </small>  |
-| ---------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------- |
-| <small> `grm-trigger` </small>                             | <small> GRM trigger notice with possible rough localization </small>                | <small> ~15 sec</small>   |
-| <small> `eclairs-wakeup` </small>                          | <small> ECLAIRs localisation of a GRB candidate </small>                            | <small> ~15 sec</small>   |
-| <small> `eclairs-catalog` </small>                         | <small> ECLAIRs localisation of a flaring source of the on-board catalogue </small> | <small> ~15 sec</small>   |
-| <small> `slewing` /<br/>`not-slewing` <sup>1</sup></small> | <small> Slew status of the platform with ECLAIRs updated localization </small>      | <small> ~1-8 min </small> |
-| <pre><small>`mxt-initial_qf#`<sup>2</sup></small></pre>    | <small> MXT localisation of a found counterpart (only if platform slew) </small>    | <small> ~3 min </small>   |
-| <pre><small>`mxt-update_qf#`<sup>2</sup></small></pre>     | <small> MXT updated localisation (qf > mxt-initial_qf) </small>                     | <small> ~3 min </small>   |
+| <small> Notice Type </small>                               | <small> Content </small>                                                            | <small> Latency </small>      |
+| ---------------------------------------------------------- | ----------------------------------------------------------------------------------- | ----------------------------- |
+| <small> `grm-trigger` </small>                             | <small> GRM trigger notice with possible rough localization </small>                | <small> ~15 sec</small>       |
+| <small> `eclairs-wakeup` </small>                          | <small> ECLAIRs localisation of a GRB candidate </small>                            | <small> ~15 sec</small>       |
+| <small> `eclairs-catalog` </small>                         | <small> ECLAIRs localisation of a flaring source of the on-board catalogue </small> | <small> ~15 sec</small>       |
+| <small> `slewing` /<br/>`not-slewing` <sup>1</sup></small> | <small> Platform slew status and target coordinates </small>                        | <small> ~1-8&nbsp;min</small> |
+| <pre><small>`mxt-initial_qf#`<sup>2</sup></small></pre>    | <small> MXT localisation of a found counterpart (only if platform slews) </small>   | <small> ~3 min </small>       |
+| <pre><small>`mxt-update_qf#`<sup>2</sup></small></pre>     | <small> MXT updated localisation (qf > mxt-initial_qf) </small>                     | <small> ~3 min </small>       |
 
  </div>
 
 <sup>1</sup> <small>`not-slewing`</small> are published either if the detection
 did not reach the slew threshold (in a maximum time window of 8 min) or if the
-slew was not possible. The reason is specified in the notices parameters.
+slew was not possible. The reason is specified in the notice parameters.
 
 <sup>2</sup> the value of the quality factor <small>`qf`</small> indicates the accuracy
 of the localisation:
@@ -87,7 +87,7 @@ of the localisation:
 
 | <small> Instrument</small> | <small> Type </small> | <small> Yearly Rates</small> |
 | -------------------------- | --------------------- | ---------------------------- |
-| <small> ECLAIRs </small>   | <small> GRBs </small> | <small> 50 GRBs/yr </small>  |
+| <small> ECLAIRs </small>   | <small> GRBs </small> | <small> 60 GRBs/yr </small>  |
 | <small> GRM </small>       | <small> GRBs </small> | <small> 130 GRBs/yr </small> |
 
  </div>
